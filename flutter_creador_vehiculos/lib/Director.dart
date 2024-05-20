@@ -12,6 +12,7 @@ class Director {
   final String apiUrlvehiculo= "http://localhost:3000/vehiculo";
   final String apiUrlusuario= "http://localhost:3000/usuario";
   List<String> usuarios = [];
+  String currentUser = "";
 
 
   Director(newConstructor, newEstrategia) {
@@ -23,6 +24,7 @@ class Director {
     estrategia = newEstrategia;
     vehiculos = [];
     usuarios = [];
+    currentUser = "";
   }
 
   void construirVehiculo() {
@@ -31,7 +33,7 @@ class Director {
     constructor.configurarRuedas();
     constructor.configurarCarroceria();
     constructor.configurarPersonalizacion(estrategia);
-    vehiculos!.add(constructor.getVehiculo());
+    constructor.setUsuario(currentUser);
   }
 
   void setEstrategia(EstrategiaPersonalizacion newEstrategia) {
@@ -40,6 +42,10 @@ class Director {
 
   void setConstructor(ConstructorVehiculo newConstructor) {
     constructor = newConstructor;
+  }
+
+  void setCurrentUser(String user){
+    currentUser = user;
   }
 
 
@@ -51,8 +57,8 @@ class Director {
     return usuarios;
   }
   
-  Future<void> cargarVehiculos(String usuario) async{ 
-    final respuesta = await http.get(Uri.parse('$apiUrlvehiculo?usuario=$usuario'));
+  Future<void> cargarVehiculos() async{ 
+    final respuesta = await http.get(Uri.parse('$apiUrlvehiculo?usuario=$currentUser'));
 
     if (respuesta.statusCode == 200) {
         List<dynamic> vehiculosJson = json.decode(respuesta.body);
@@ -132,27 +138,23 @@ class Director {
     }
   }
 
-}
-  /* PERSONALIZAR VEHICULO
 
-  Future<void> marcarCompletada(Tarea tarea) async {
-    bool nuevoEstadoCompletado = !(tarea.completada ?? false);
 
+  Future<void> pinta(Vehiculo vehiculo, String newcolor) async{
     final response = await http.patch(
-      Uri.parse('$apiUrl/${tarea.id}'),
+      Uri.parse('http://localhost:3000/vehiculo/${vehiculo.id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'completada': nuevoEstadoCompletado,
+        'color': newcolor,
       }),
     );
 
     if (response.statusCode == 200) {
-      tarea.completada = nuevoEstadoCompletado;
+      vehiculo.color = newcolor;
     } else {
       throw Exception('Failed to update task');
     }
   }
-   */
-
+}

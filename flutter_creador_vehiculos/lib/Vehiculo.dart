@@ -5,11 +5,11 @@ class Vehiculo {
   String? carroceria;
   String? personalizacion;
   String? usuario;
-  String? color;
+  String? color = 'blanco';
 
   @override
   String toString() {
-    return 'Tiene $motor, $ruedas, $carroceria y modo motor $personalizacion';
+    return 'Tiene $motor, $ruedas, $carroceria y modo motor $personalizacion de color $color.';
   }
 
   Vehiculo();

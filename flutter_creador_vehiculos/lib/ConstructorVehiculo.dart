@@ -16,6 +16,10 @@ abstract class ConstructorVehiculo {
     estrategia.aplicar(vehiculo!);
   }
 
+  void setUsuario(String usuario) {
+    vehiculo?.usuario = usuario;
+  }
+
   getVehiculo() {
     return vehiculo;
   }
