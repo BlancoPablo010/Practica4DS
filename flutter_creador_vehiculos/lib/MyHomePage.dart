@@ -51,13 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _cargarUsuarios() async {
     try {
-      await director.usuariosFromJson();
+      await director.cargarUsuarios();
       
       setState(() {
         usuarios = director.getUsuarios();
-        currentUser = usuarios.isNotEmpty ? usuarios[1] : '';
+        currentUser = usuarios.isNotEmpty ? director.getCurrentUser() : '';
         if(usuarios.isNotEmpty) {
-          director.setCurrentUser(currentUser);
           _cargarDatosUsuario();
         }
       });
@@ -123,8 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       vehicleType = 'Moto';
       director.setConstructor(constructorMoto);
-      director.construirVehiculo();
-      _agregarVehiculo(director.constructor.vehiculo!);
+      
+      _agregarVehiculo(director.construirVehiculo());
     });
   }
 
@@ -132,8 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       vehicleType = 'Coche';
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
-      _agregarVehiculo(director.constructor.vehiculo!);
+      
+      _agregarVehiculo(director.construirVehiculo());
     });
   }
 
@@ -141,8 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       vehicleType = 'Camión';
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
-      _agregarVehiculo(director.constructor.vehiculo!);
+      _agregarVehiculo(director.construirVehiculo());
     });
   }
   

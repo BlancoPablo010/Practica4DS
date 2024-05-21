@@ -5,7 +5,6 @@ import 'package:flutter_creador_vehiculos/Director.dart';
 import 'package:flutter_creador_vehiculos/ConstructorMoto.dart';
 import 'package:flutter_creador_vehiculos/ConstructorAutomovil.dart';
 import 'package:flutter_creador_vehiculos/ConstructorCamion.dart';
-import 'package:flutter_creador_vehiculos/Vehiculo.dart';
 import 'package:flutter_creador_vehiculos/EstrategiaPersonalizacion.dart';
 import 'package:flutter_creador_vehiculos/EstrategiaEco.dart';
 import 'package:flutter_creador_vehiculos/EstrategiaDeportiva.dart';
@@ -55,7 +54,7 @@ void main() {
       expect(estrategiaDeportiva, isNotNull);
     });
 
-    test('Test 6 - Creación de vehículos y son diferentes', () {
+    test('Test 6 - Creación de vehículos y son diferentes', () async {
       // Crear dos constructores de automóviles
       Director director = Director(ConstructorAutomovil(), EstrategiaEco());
 
@@ -64,18 +63,36 @@ void main() {
 
       director.setConstructor(ConstructorMoto());
 
-      director.construirVehiculo();
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
 
-      Vehiculo vehiculo1 = director.getVehiculos()[0];
-      Vehiculo vehiculo2 = director.getVehiculos()[1];
+      var numVehiculos = director.getVehiculos().length;
 
-      // Verificar que los vehículos son diferentes objetos
-      expect(identical(vehiculo1, vehiculo2), isFalse);
+      await director.agregar(director.construirVehiculo());
+      
+      expect(director.getVehiculos().length, numVehiculos+1);
+
+      director.setConstructor(ConstructorCamion());
+
+      await director.agregar(director.construirVehiculo());
+
+      expect(director.getVehiculos().length, numVehiculos+2);
+
+      expect(director.getVehiculos()[numVehiculos] != director.getVehiculos()[numVehiculos+1], true);
+
+      await director.eliminar(director.getVehiculos()[numVehiculos+1]);
+      await director.eliminar(director.getVehiculos()[numVehiculos]);
+
+      expect(director.getVehiculos().length, numVehiculos);
+
+      // Verificar que los vehículos son diferentes
+
+
     });
   });
 
   group('Grupo 2 - Validaciones', () {
-    test('Test 1 - Prueba de creación de vehículos con diferentes constructores', () {
+    test('Test 1 - Prueba de creación de vehículos con diferentes constructores', () async {
       // Crear un constructor de moto
       ConstructorMoto constructorMoto = ConstructorMoto();
       // Crear un constructor de automóvil
@@ -86,21 +103,32 @@ void main() {
       // Crear un director con el constructor de moto
       Director director = Director(constructorMoto, EstrategiaEco());
 
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
+
+      var numVehiculos = director.getVehiculos().length;
+
       // Crear un vehículo utilizando el constructor de moto
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Crear un vehículo utilizando el constructor de automóvil
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Crear un vehículo utilizando el constructor de camión
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Verificar que los vehículos son de los tipos correctos
-      expect(director.getVehiculos()[0].motor, 'motor de moto');
-      expect(director.getVehiculos()[1].motor, 'motor de automóvil');
-      expect(director.getVehiculos()[2].motor, 'motor de camión');
+      expect(director.getVehiculos()[numVehiculos].motor, 'motor de moto');
+      expect(director.getVehiculos()[numVehiculos + 1].motor, 'motor de automóvil');
+      expect(director.getVehiculos()[numVehiculos + 2].motor, 'motor de camión');
+
+      await director.eliminar(director.getVehiculos()[numVehiculos + 2]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 1]);
+      await director.eliminar(director.getVehiculos()[numVehiculos]);
+
+      expect(director.getVehiculos().length, numVehiculos);
     });
 
     test('Test 2 - Cambio correcto de estrategia', () {
@@ -119,7 +147,7 @@ void main() {
 
     });
 
-    test('Test 3 - Prueba de configuración de estrategia de personalización', () {
+    test('Test 3 - Prueba de configuración de estrategia de personalización', () async {
       // Crear una estrategia de personalización ecológica
       EstrategiaPersonalizacion estrategiaEco = EstrategiaEco();
       // Crear una estrategia de personalización deportiva
@@ -135,43 +163,58 @@ void main() {
       // Crear un director con el constructor de moto y la estrategia ecológica
       Director director = Director(constructorMoto, estrategiaEco);
 
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
+
+      var numVehiculos = director.getVehiculos().length;
+
       // Crear un vehículo utilizando el constructor de moto
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Crear un vehículo utilizando el constructor de automóvil
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Crear un vehículo utilizando el constructor de camión
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Verificar que los vehículos tienen la personalización correcta
-      expect(director.getVehiculos()[0].personalizacion, 'eco');
-      expect(director.getVehiculos()[1].personalizacion, 'eco');
-      expect(director.getVehiculos()[2].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos + 1].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos + 2].personalizacion, 'eco');
 
       // Cambiar la estrategia de personalización a deportiva
       director.setEstrategia(estrategiaDeportiva);
 
       // Crear un vehículo utilizando el constructor de moto
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
+
 
       // Crear un vehículo utilizando el constructor de automóvil
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Crear un vehículo utilizando el constructor de camión
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       // Verificar que los vehículos tienen la personalización correcta
-      expect(director.getVehiculos()[3].personalizacion, 'deportivo');
-      expect(director.getVehiculos()[4].personalizacion, 'deportivo');
-      expect(director.getVehiculos()[5].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 3].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 4].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 5].personalizacion, 'deportivo');
+
+      await director.eliminar(director.getVehiculos()[numVehiculos + 5]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 4]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 3]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 2]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 1]);
+      await director.eliminar(director.getVehiculos()[numVehiculos]);
+
+      expect(director.getVehiculos().length, numVehiculos);
     });
 
-    test('Test 4 - Representación correcta de Vehículo', () {
+    test('Test 4 - Representación correcta de Vehículo', () async {
       ConstructorVehiculo constructorMoto = ConstructorMoto();
       ConstructorVehiculo constructorAutomovil = ConstructorAutomovil();
       ConstructorVehiculo constructorCamion = ConstructorCamion();
@@ -181,39 +224,52 @@ void main() {
 
       Director director = Director(constructorMoto, estrategiaEco);
 
-      director.construirVehiculo();
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
 
-      expect(director.getVehiculos()[0].toString(), 'Tiene motor de moto, 2 ruedas, carrocería de moto y modo motor eco');
+      var numVehiculos = director.getVehiculos().length;
+
+      await director.agregar(director.construirVehiculo());
+
+      expect(director.getVehiculos()[numVehiculos].toString(), 'Tiene motor de moto, 2 ruedas, carrocería de moto y modo motor eco de color blanco.');
 
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[1].toString(), 'Tiene motor de automóvil, 4 ruedas, carrocería de automóvil y modo motor eco');
+      expect(director.getVehiculos()[numVehiculos + 1].toString(), 'Tiene motor de automóvil, 4 ruedas, carrocería de automóvil y modo motor eco de color blanco.');
 
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[2].toString(), 'Tiene motor de camión, 8 ruedas, carrocería de camión y modo motor eco');
+      expect(director.getVehiculos()[numVehiculos + 2].toString(), 'Tiene motor de camión, 8 ruedas, carrocería de camión y modo motor eco de color blanco.');
 
       director.setEstrategia(estrategiaDeportiva);
       director.setConstructor(constructorMoto);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[3].toString(), 'Tiene motor de moto, 2 ruedas, carrocería de moto y modo motor deportivo');
+      expect(director.getVehiculos()[numVehiculos + 3].toString(), 'Tiene motor de moto, 2 ruedas, carrocería de moto y modo motor deportivo de color blanco.');
 
       director.setConstructor(constructorAutomovil);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[4].toString(), 'Tiene motor de automóvil, 4 ruedas, carrocería de automóvil y modo motor deportivo');
+      expect(director.getVehiculos()[numVehiculos + 4].toString(), 'Tiene motor de automóvil, 4 ruedas, carrocería de automóvil y modo motor deportivo de color blanco.');
 
       director.setConstructor(constructorCamion);
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[5].toString(), 'Tiene motor de camión, 8 ruedas, carrocería de camión y modo motor deportivo');
+      expect(director.getVehiculos()[numVehiculos + 5].toString(), 'Tiene motor de camión, 8 ruedas, carrocería de camión y modo motor deportivo de color blanco.');
       
+      await director.eliminar(director.getVehiculos()[numVehiculos + 5]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 4]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 3]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 2]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 1]);
+      await director.eliminar(director.getVehiculos()[numVehiculos]);
+
+      expect(director.getVehiculos().length, numVehiculos);
     });
 
-    test('Test 5 - Comprobar que todas las partes son correctas', () {
+    test('Test 5 - Comprobar que todas las partes son correctas', () async {
 
       ConstructorVehiculo constructorMoto = ConstructorMoto();
       ConstructorVehiculo constructorAutomovil = ConstructorAutomovil();
@@ -224,70 +280,95 @@ void main() {
 
       Director director = Director(constructorMoto, estrategiaEco);
 
-      director.construirVehiculo();
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
+
+      var numVehiculos = director.getVehiculos().length;
+
+      await director.agregar(director.construirVehiculo());
 
       director.setConstructor(constructorAutomovil);
 
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       director.setConstructor(constructorCamion);
 
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[0].motor, 'motor de moto');
-      expect(director.getVehiculos()[0].ruedas, '2 ruedas');
-      expect(director.getVehiculos()[0].carroceria, 'carrocería de moto');
-      expect(director.getVehiculos()[0].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos].motor, 'motor de moto');
+      expect(director.getVehiculos()[numVehiculos].ruedas, '2 ruedas');
+      expect(director.getVehiculos()[numVehiculos].carroceria, 'carrocería de moto');
+      expect(director.getVehiculos()[numVehiculos].personalizacion, 'eco');
 
-      expect(director.getVehiculos()[1].motor, 'motor de automóvil');
-      expect(director.getVehiculos()[1].ruedas, '4 ruedas');
-      expect(director.getVehiculos()[1].carroceria, 'carrocería de automóvil');
-      expect(director.getVehiculos()[1].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos + 1].motor, 'motor de automóvil');
+      expect(director.getVehiculos()[numVehiculos + 1].ruedas, '4 ruedas');
+      expect(director.getVehiculos()[numVehiculos + 1].carroceria, 'carrocería de automóvil');
+      expect(director.getVehiculos()[numVehiculos + 1].personalizacion, 'eco');
 
-      expect(director.getVehiculos()[2].motor, 'motor de camión');
-      expect(director.getVehiculos()[2].ruedas, '8 ruedas');
-      expect(director.getVehiculos()[2].carroceria, 'carrocería de camión');
-      expect(director.getVehiculos()[2].personalizacion, 'eco');
+      expect(director.getVehiculos()[numVehiculos + 2].motor, 'motor de camión');
+      expect(director.getVehiculos()[numVehiculos + 2].ruedas, '8 ruedas');
+      expect(director.getVehiculos()[numVehiculos + 2].carroceria, 'carrocería de camión');
+      expect(director.getVehiculos()[numVehiculos + 2].personalizacion, 'eco');
 
       director.setEstrategia(estrategiaDeportiva);
 
       director.setConstructor(constructorMoto);
 
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       director.setConstructor(constructorAutomovil);
 
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
       director.setConstructor(constructorCamion);
 
-      director.construirVehiculo();
+      await director.agregar(director.construirVehiculo());
 
-      expect(director.getVehiculos()[3].motor, 'motor de moto');
-      expect(director.getVehiculos()[3].ruedas, '2 ruedas');
-      expect(director.getVehiculos()[3].carroceria, 'carrocería de moto');
-      expect(director.getVehiculos()[3].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 3].motor, 'motor de moto');
+      expect(director.getVehiculos()[numVehiculos + 3].ruedas, '2 ruedas');
+      expect(director.getVehiculos()[numVehiculos + 3].carroceria, 'carrocería de moto');
+      expect(director.getVehiculos()[numVehiculos + 3].personalizacion, 'deportivo');
 
-      expect(director.getVehiculos()[4].motor, 'motor de automóvil');
-      expect(director.getVehiculos()[4].ruedas, '4 ruedas');
-      expect(director.getVehiculos()[4].carroceria, 'carrocería de automóvil');
-      expect(director.getVehiculos()[4].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 4].motor, 'motor de automóvil');
+      expect(director.getVehiculos()[numVehiculos + 4].ruedas, '4 ruedas');
+      expect(director.getVehiculos()[numVehiculos + 4].carroceria, 'carrocería de automóvil');
+      expect(director.getVehiculos()[numVehiculos + 4].personalizacion, 'deportivo');
 
-      expect(director.getVehiculos()[5].motor, 'motor de camión');
-      expect(director.getVehiculos()[5].ruedas, '8 ruedas');
-      expect(director.getVehiculos()[5].carroceria, 'carrocería de camión');
-      expect(director.getVehiculos()[5].personalizacion, 'deportivo');
+      expect(director.getVehiculos()[numVehiculos + 5].motor, 'motor de camión');
+      expect(director.getVehiculos()[numVehiculos + 5].ruedas, '8 ruedas');
+      expect(director.getVehiculos()[numVehiculos + 5].carroceria, 'carrocería de camión');
+      expect(director.getVehiculos()[numVehiculos + 5].personalizacion, 'deportivo');
+
+      await director.eliminar(director.getVehiculos()[numVehiculos + 5]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 4]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 3]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 2]);
+      await director.eliminar(director.getVehiculos()[numVehiculos + 1]);
+      await director.eliminar(director.getVehiculos()[numVehiculos]);
+
+      expect(director.getVehiculos().length, numVehiculos);
     });
 
-    test('Test 6 - Guardado en la lista de manera correcta', () {
+    test('Test 6 - Guardado en la lista de manera correcta', () async {
 
       Director director = Director(ConstructorMoto(), EstrategiaEco());
 
+      await director.cargarUsuarios();
+      await director.cargarVehiculos();
+
+      var numVehiculos = director.getVehiculos().length;
+
       for (int i=0; i<10; i++) {
-        director.construirVehiculo();
+        await director.agregar(director.construirVehiculo());
       }
 
-      expect(director.getVehiculos().length, 10);
+      expect(director.getVehiculos().length, numVehiculos+10);
+
+      for (int i=0; i<10; i++) {
+        await director.eliminar(director.getVehiculos()[numVehiculos-1]);
+      }
+
+      expect(director.getVehiculos().length, numVehiculos);
     });
 
   });

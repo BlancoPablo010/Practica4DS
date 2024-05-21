@@ -27,13 +27,15 @@ class Director {
     currentUser = "";
   }
 
-  void construirVehiculo() {
+  Vehiculo construirVehiculo() {
     constructor.crearVehiculo();
     constructor.configurarMotor();
     constructor.configurarRuedas();
     constructor.configurarCarroceria();
     constructor.configurarPersonalizacion(estrategia);
     constructor.setUsuario(currentUser);
+
+    return constructor.getVehiculo();
   }
 
   void setEstrategia(EstrategiaPersonalizacion newEstrategia) {
@@ -55,6 +57,10 @@ class Director {
 
   List<String> getUsuarios(){
     return usuarios;
+  }
+
+  String getCurrentUser(){
+    return currentUser;
   }
   
   Future<void> cargarVehiculos() async{ 
@@ -102,7 +108,7 @@ class Director {
     }
   }
 
-  Future<void> usuariosFromJson() async {
+  Future<void> cargarUsuarios() async {
     final respuesta = await http.get(Uri.parse(apiUrlusuario));
 
     if (respuesta.statusCode == 200) {
@@ -111,9 +117,9 @@ class Director {
       usuarios.clear();
       
       usuarios.addAll(usuariosJson.map((json) => json['nombre'].toString()).toList());
-      
-      print("Usuarios cargados: $usuarios");
-      
+
+      currentUser = usuarios[0];
+        
     } else {
       throw Exception('Error a la hora de cargar los usuarios');
     }
