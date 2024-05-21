@@ -1,8 +1,8 @@
-# Insalación de Ruby on Rails
+# Instalación de Ruby on Rails
 
 1) sudo apt update && sudo apt upgrade -y
 
-2) sudo apt install git curl autoconf bison build-essential libssl-dev libyaml−dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev
+2) sudo apt install git curl autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev
 
 3) git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 
